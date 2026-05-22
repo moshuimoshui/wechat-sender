@@ -5,6 +5,11 @@
   python send_wechat.py "收件人" "消息内容"
   python send_wechat.py "收件人" "文件路径" --mode file
   python send_wechat.py "收件人" "多行内容" --mode text --no-send
+
+注意：
+- uiautomation SendKeys 对某些 emoji 编码支持不佳，可能导致乱码
+- 消息内容中建议尽量不用 emoji，或只用简单 emoji（如✅❌），避免🖥️这类复合 emoji
+- 多行内容中的空行已被脚本自动跳过处理，不会报错
 """
 import uiautomation as auto
 import subprocess
@@ -62,6 +67,11 @@ def send_text(wechat, text, no_send=False):
     """发送文字（支持多行）"""
     lines = text.split('\n')
     for i, line in enumerate(lines):
+        if line == '':
+            # 空行：直接 Ctrl+Enter 换行
+            ctrl_enter()
+            time.sleep(0.2)
+            continue
         wechat.SendKeys(line)
         time.sleep(0.1)
         if i < len(lines) - 1:
