@@ -24,9 +24,10 @@ python wechat_sender.py "收件人" "文件路径" --mode file
 python wechat_sender.py "收件人" "多行内容" --no-send
 ```
 
-## 触发关键词
-微信发送、发微信、发给、wechat send
+## 安装为 Agent Skill
 
-## WorkBuddy 安装
+将此仓库克隆到 skills 目录即可：
 
-将此仓库克隆到 `~/.workbuddy/skills/微信发送消息/` 即可使用。
+```bash
+git clone https://github.com/moshuimoshui/wechat-sender.git ~/skills/wechat-sender
+```
