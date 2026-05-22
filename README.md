@@ -1,6 +1,8 @@
 # 微信发送消息 (WeChat Sender)
 
-通过 Python UIA (UI Automation) 自动操作微信 PC 版，发送消息或文件给指定联系人或群聊。
+[![WorkBuddy Skill](https://img.shields.io/badge/WorkBuddy-Skill-4A90D9)](https://github.com/moshuimoshui/wechat-sender)
+
+通过 Python UIA (UI Automation) 自动操作微信 PC 版，发送消息或文件给指定联系人或群聊。可作为独立脚本使用，也可安装为 WorkBuddy Skill。
 
 ## 原理
 
