@@ -1,4 +1,4 @@
-# 微信发送消息 (WeChat Sender)
+# 微信发送消息 Skill · WeChat Sender
 
 [![Agent Ready](https://img.shields.io/badge/AI_Agent-✅_Ready-brightgreen)](https://github.com/moshuimoshui/wechat-sender)
 [![Python 3.x](https://img.shields.io/badge/python-3.x-blue.svg)](https://www.python.org/)
