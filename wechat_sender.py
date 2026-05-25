@@ -2,14 +2,20 @@
 """
 微信桌面版自动发送消息/文件
 用法:
+  # 文字消息
   python send_wechat.py "收件人" "消息内容"
+  python send_wechat.py "收件人" "多行\n内容" --no-send
+
+  # 单个文件
   python send_wechat.py "收件人" "文件路径" --mode file
-  python send_wechat.py "收件人" "多行内容" --mode text --no-send
+
+  # 多个文件（一次性粘贴发送，只搜索一次联系人）
+  python send_wechat.py "收件人" "文件1" "文件2" "文件3" --mode file
 
 注意：
 - uiautomation SendKeys 对某些 emoji 编码支持不佳，可能导致乱码
-- 消息内容中建议尽量不用 emoji，或只用简单 emoji（如✅❌），避免🖥️这类复合 emoji
 - 多行内容中的空行已被脚本自动跳过处理，不会报错
+- 多个文件通过 PowerShell Set-Clipboard 一次性复制到剪贴板，微信支持批量粘贴
 """
 import uiautomation as auto
 import subprocess
@@ -85,22 +91,26 @@ def send_text(wechat, text, no_send=False):
     else:
         print("已输入文本框（未发送）")
 
-def send_file(wechat, file_path):
-    """发送文件（先复制到剪贴板，再Ctrl+V粘贴）"""
-    print(f"正在复制文件到剪贴板: {file_path}")
-    subprocess.run(['powershell', '-Command', f'Set-Clipboard -Path "{file_path}"'], shell=True)
-    time.sleep(0.5)
+def send_files(wechat, file_paths):
+    """发送多个文件（一次性复制到剪贴板，批量粘贴）"""
+    # 用 PowerShell Set-Clipboard 一次性复制多个文件
+    paths_json = ','.join(f'"{p}"' for p in file_paths)
+    ps_cmd = f'Set-Clipboard -Path @({paths_json})'
+    print(f"正在复制 {len(file_paths)} 个文件到剪贴板...")
+    subprocess.run(['powershell', '-Command', ps_cmd], shell=True)
+    time.sleep(1)
     wechat.SendKeys('{Ctrl}v')
-    time.sleep(2)
+    time.sleep(3)  # 多文件粘贴需要更长时间
     wechat.SendKeys('{Enter}')
     time.sleep(1)
-    print("文件已发送")
+    print(f"{len(file_paths)} 个文件已发送")
 
 
 def main():
     # 参数解析
     recipient = None
-    content = None
+    file_paths = []
+    text_content = None
     mode = 'text'
     no_send = False
     
@@ -114,8 +124,11 @@ def main():
             no_send = True
         elif recipient is None:
             recipient = args[i]
-        elif content is None:
-            content = args[i]
+        elif mode == 'file':
+            # file 模式下，所有剩余参数都是文件路径
+            file_paths.append(args[i])
+        elif text_content is None:
+            text_content = args[i]
         i += 1
     
     if not recipient:
@@ -124,6 +137,8 @@ def main():
     
     print(f"收件人: {recipient}")
     print(f"模式: {mode}")
+    if mode == 'file':
+        print(f"文件数: {len(file_paths)}
     
     # 查找/启动微信
     wechat = None
@@ -157,10 +172,10 @@ def main():
     search_and_open(wechat, recipient)
     
     # 发送
-    if mode == 'file' and content:
-        send_file(wechat, content)
-    elif mode == 'text' and content:
-        send_text(wechat, content, no_send)
+    if mode == 'file' and file_paths:
+        send_files(wechat, file_paths)
+    elif mode == 'text' and text_content:
+        send_text(wechat, text_content, no_send)
     else:
         # 没有指定内容，粘贴剪贴板
         print("粘贴剪贴板内容...")
